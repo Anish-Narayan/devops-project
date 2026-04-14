@@ -16,11 +16,15 @@ pipeline {
         }
 
         stage('Test') {
+            agent {
+                docker {
+                    image 'python:3.11'
+                }
+            }
             steps {
                 sh 'python -m py_compile app/app.py'
             }
         }
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv(SONAR_ENV) {
