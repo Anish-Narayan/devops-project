@@ -25,13 +25,18 @@ pipeline {
                 sh 'python -m py_compile app/app.py'
             }
         }
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv(SONAR_ENV) {
-                    sh 'sonar-scanner'
-                }
-            }
+stage('SonarQube Analysis') {
+    agent {
+        docker {
+            image 'sonarsource/sonar-scanner-cli:latest'
         }
+    }
+    steps {
+        withSonarQubeEnv('sonar') {
+            sh 'sonar-scanner'
+        }
+    }
+}
 
         stage('Quality Gate') {
             steps {
