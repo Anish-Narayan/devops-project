@@ -26,14 +26,14 @@ pipeline {
             }
         }
 stage('SonarQube Analysis') {
-    agent {
-        docker {
-            image 'sonarsource/sonar-scanner-cli:latest'
-        }
-    }
     steps {
-        withSonarQubeEnv('sonar') {
-            sh 'sonar-scanner'
+        script {
+            docker.image('sonarsource/sonar-scanner-cli:latest')
+                  .inside('--network devops-net') {
+                withSonarQubeEnv('sonar') {
+                    sh 'sonar-scanner'
+                }
+            }
         }
     }
 }
