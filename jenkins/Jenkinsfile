@@ -73,16 +73,25 @@ stage('SonarQube Analysis') {
         }
 
         stage('Update K8s Manifest') {
-            steps {
-                sh '''
-                sed -i "s|image:.*|image: $IMAGE:$BUILD_NUMBER|" k8s/base/deployment.yaml
-                git config user.name "jenkins"
-                git config user.email "jenkins@example.com"
-                git add k8s/base/deployment.yaml
-                git commit -m "Update image to $BUILD_NUMBER"
-                git push origin main
-                '''
-            }
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'github-creds',
+            usernameVariable: 'GIT_USER',
+            passwordVariable: 'GIT_PASS'
+        )]) {
+            sh '''
+            sed -i "s|image:.*|image: anishs14/devops-app:${BUILD_NUMBER}|" k8s/base/deployment.yaml
+
+            git config user.name "jenkins"
+            git config user.email "jenkins@example.com"
+
+            git add k8s/base/deployment.yaml
+            git commit -m "Update image to ${BUILD_NUMBER}"
+
+            git push https://$GIT_USER:$GIT_PASS@github.com/Anish-Narayan/devops-project.git main
+            '''
         }
+    }
+}
     }
 }
