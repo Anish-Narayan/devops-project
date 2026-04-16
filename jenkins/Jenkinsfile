@@ -31,7 +31,12 @@ stage('SonarQube Analysis') {
             docker.image('sonarsource/sonar-scanner-cli:latest')
                   .inside('--network devops-net') {
                 withSonarQubeEnv('sonar') {
-                    sh 'sonar-scanner'
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                        sonar-scanner \
+                          -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
